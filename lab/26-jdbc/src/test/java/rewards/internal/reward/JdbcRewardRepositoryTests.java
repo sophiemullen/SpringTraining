@@ -6,6 +6,7 @@ import common.money.Percentage;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseBuilder;
 import rewards.AccountContribution;
 import rewards.Dining;
@@ -35,8 +36,8 @@ public class JdbcRewardRepositoryTests {
 	@BeforeEach
 	public void setUp() throws Exception {
 		dataSource = createTestDataSource();
-		repository = new JdbcRewardRepository(dataSource);
 		jdbcTemplate = new JdbcTemplate(dataSource);
+		repository = new JdbcRewardRepository(dataSource);
 	}
 
 	@Test
@@ -65,8 +66,8 @@ public class JdbcRewardRepositoryTests {
 		//  the build.gradle file.)
 		//
 		//   SQL: SELECT * FROM T_REWARD WHERE CONFIRMATION_NUMBER = ?
-		
-		Map<String, Object> values = null;
+
+		Map<String, Object> values = jdbcTemplate.queryForMap("SELECT * FROM T_REWARD WHERE CONFIRMATION_NUMBER = ?", confirmation.getConfirmationNumber());
 		verifyInsertedValues(confirmation, dining, values);
 	}
 
@@ -83,7 +84,7 @@ public class JdbcRewardRepositoryTests {
 	private int getRewardCount() throws SQLException {
 		// TODO-01: Use the JdbcTemplate to query for the number of rows in the T_REWARD table
 		//          SQL: SELECT count(*) FROM T_REWARD
-		return -1;
+		return jdbcTemplate.queryForObject("SELECT count(*) FROM T_REWARD", Integer.class);
 	}
 
 	private DataSource createTestDataSource() {
