@@ -3,9 +3,14 @@ package rewards.internal.aspects;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.Signature;
+import org.aspectj.lang.annotation.After;
+import org.aspectj.lang.annotation.Around;
+import org.aspectj.lang.annotation.Aspect;
+import org.aspectj.lang.annotation.Before;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import org.springframework.stereotype.Component;
 import rewards.internal.monitor.Monitor;
 import rewards.internal.monitor.MonitorFactory;
 
@@ -17,6 +22,8 @@ import rewards.internal.monitor.MonitorFactory;
 //    where `MonitorFactory` dependency is being injected.
 //    (It is optional since there is only a single constructor in the class.)
 
+@Component
+@Aspect
 public class LoggingAspect {
     public final static String BEFORE = "'Before'";
     public final static String AROUND = "'Around'";
@@ -40,6 +47,9 @@ public class LoggingAspect {
 	//  you get stuck, refer to the examples in the slides or read the
     //  detailed instructions in the lab-notes.
 
+//	*
+
+	@Before("execution(* rewards.internal.*.*Repository.find*(..))")
 	public void implLogging(JoinPoint joinPoint) {
 		// Do not modify this log message or the test will fail
 		logger.info(BEFORE + " advice implementation - " + joinPoint.getTarget().getClass() + //
@@ -59,6 +69,7 @@ public class LoggingAspect {
 	// 
 	//  If you are really stuck, PLEASE ask a colleague or your instructor.
 
+	@Around("execution(* rewards.internal.*.*Repository.update*(..))")
 	public Object monitor(ProceedingJoinPoint repositoryMethod) throws Throwable {
 		String name = createJoinPointTraceName(repositoryMethod);
 		Monitor monitor = monitorFactory.start(name);
@@ -69,8 +80,7 @@ public class LoggingAspect {
 			//  Be sure to return the target method's return value to the caller
 			//  and delete the line below.
 
-			return new String("Delete this line after completing TODO-08");
-
+			return repositoryMethod.proceed();
 		} finally {
 			monitor.stop();
 			// Do not modify this log message or the test will fail
