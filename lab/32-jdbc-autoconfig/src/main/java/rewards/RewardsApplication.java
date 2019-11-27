@@ -2,7 +2,11 @@ package rewards;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.context.annotation.Bean;
+import org.springframework.jdbc.core.JdbcTemplate;
 
 // TODO-01 : Open pom.xml or build.gradle, look for TO-DO-01
 
@@ -21,6 +25,7 @@ import org.springframework.boot.SpringApplication;
 // TODO-12 : Follow the instruction in the lab document.
 //           The section titled "Build and Run using Command Line tools".
 
+@SpringBootApplication
 public class RewardsApplication {
 	static final String SQL = "SELECT count(*) FROM T_ACCOUNT";
 	
@@ -29,6 +34,14 @@ public class RewardsApplication {
     
     public static void main(String[] args) {
 		SpringApplication.run(RewardsApplication.class, args);
+	}
+
+	@Bean
+	CommandLineRunner commandLineRunner(JdbcTemplate jdbcTemplate) {
+		return args -> {
+			Integer numberOfAccounts = jdbcTemplate.queryForObject(SQL, Integer.class);
+			logger.info("There are: " + numberOfAccounts.toString() + " accounts");
+		};
 	}
 
     // TODO-05 : Move the SQL scripts from the
