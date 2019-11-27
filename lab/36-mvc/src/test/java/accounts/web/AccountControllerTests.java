@@ -4,6 +4,7 @@ import accounts.internal.StubAccountManager;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
+import org.springframework.http.ResponseEntity;
 import rewards.internal.account.Account;
 
 import java.util.List;
@@ -30,23 +31,22 @@ public class AccountControllerTests {
 	// Strictly speaking we should have tested the Controller before we ran the
 	// application.
 	@Test
-	@Disabled
+//	@Disabled
 	public void testHandleListRequest() {
-		List<Account> accounts = controller.accountList();
+		ResponseEntity<List<Account>> accounts = controller.accountList();
 
 		// Non-empty list containing the one and only test account
 		assertNotNull(accounts);
-		assertEquals(1, accounts.size());
+		assertEquals(1, accounts.getBody().size());
 
 		// Validate that account
-		Account account = accounts.get(0);
+		Account account = accounts.getBody().get(0);
 		assertEquals(expectedAccountId, (long) account.getEntityId());
 		assertEquals(expectedAccountNumber, account.getNumber());
 	}
 
 	// TODO-10: Remove the @Disabled annotation, run the test, it should pass.
 	@Test
-	@Disabled
 	public void testHandleDetailsRequest() {
 		// TODO-08a: Implement test code which calls the accountDetails() method on the controller.
 		//  - The accountDetails() method does not exist yet.  We will implement it in the next step.
@@ -55,9 +55,11 @@ public class AccountControllerTests {
 		//  - This class won't compile until you modify the AccountController in TO DO 09
 
 		// TODO-08b: Define the following assertions:
-		// The account is not null
-		// The account id matches expectedAccountId (see above)
-		// The account number matches expectedAccountNumber  (see above)
+		ResponseEntity<Account> accountDetail = controller.accountDetails(0);
+
+		assertNotNull(accountDetail.getBody());
+		assertEquals(accountDetail.getBody().getEntityId(), expectedAccountId);
+		assertEquals(accountDetail.getBody().getNumber(), expectedAccountNumber);
 	}
 
 }

@@ -2,6 +2,11 @@ package accounts.web;
 
 import accounts.AccountManager;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 import rewards.internal.account.Account;
 
 import java.util.List;
@@ -19,6 +24,7 @@ import java.util.List;
  */
 // TODO-03: Add the annotation for Spring MVC to recognize this class
 // as a REST controller.
+@RestController
 public class AccountController {
 
 	private final AccountManager accountManager;
@@ -35,7 +41,8 @@ public class AccountController {
 	 * Provide a model with a list of all accounts for the account List page.
 	 */
 	// TODO-04: Add the mapping for /accounts
-	public List<Account> accountList() {
+	@GetMapping(value = "/accounts", produces = {"application/hal+json", "application/hal+json"})
+    public ResponseEntity<List<Account>> accountList() {
 
 		// TODO-05: Implement the logic to find and return all accounts
 		// - Use accountManger to get all accounts
@@ -43,21 +50,26 @@ public class AccountController {
 		// - From the home page, click the link - this should now work
 		// - If you prefer, access http://localhost:8080/accounts using curl or Postman
 
-		return null; // REPLACE THIS LINE to return a list accounts
-		
+		return ResponseEntity.ok(accountManager.getAllAccounts()); // REPLACE THIS LINE to return a list accounts
+
 		// TODO-06: (If you are using STS) We are about to make lots of
 		//          changes, so stop the application otherwise Devtools
 		//          will keep restarting it.
 	}
 
-	// TODO-09: Implement the /accounts/{entityId} request handling method.
-	// 1. Call the method accountDetails().
-	// 2. Annotate to define URL mapping /accounts/{entityId} this method will
-	// respond to.
-	// 3. Use a method parameter to obtain the URI template parameter needed to
-	// retrieve an account.
-	// 4. Use the accountManager to obtain an account. This is the value to return
-	// 5. Save all work
+
+    // TODO-09: Implement the /accounts/{entityId} request handling method.
+    // 1. Call the method accountDetails().
+    // 2. Annotate to define URL mapping /accounts/{entityId} this method will
+    // respond to.
+    // 3. Use a method parameter to obtain the URI template parameter needed to
+    // retrieve an account.
+    // 4. Use the accountManager to obtain an account. This is the value to return
+    // 5. Save all work
+    @GetMapping(value = "/accounts/{entityId}", produces = "application/hal+json")
+    public ResponseEntity<Account> accountDetails(@PathVariable("entityId") long id) {
+        return ResponseEntity.ok(accountManager.getAccount(id));
+    }
 
 	// TODO-10: Run the test in AccountControllerTests, it should pass.
 	//          Fix any errors before moving on
