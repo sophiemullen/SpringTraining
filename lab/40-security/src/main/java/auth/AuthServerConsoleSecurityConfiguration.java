@@ -1,14 +1,19 @@
 package auth;
 
+import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import org.springframework.security.core.userdetails.User;
 import org.springframework.security.crypto.factory.PasswordEncoderFactories;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
+import static org.springframework.security.core.userdetails.User.builder;
+
 // TODO-04: Enable this configuration by removing both the // comment characters
-//@Configuration
-//@EnableWebSecurity
+@Configuration
+@EnableWebSecurity
 public class AuthServerConsoleSecurityConfiguration extends WebSecurityConfigurerAdapter {
 
 	public static final String ADMIN_USER = "admin";
@@ -25,17 +30,16 @@ public class AuthServerConsoleSecurityConfiguration extends WebSecurityConfigure
 	@Override
 	protected void configure(AuthenticationManagerBuilder auth) throws Exception {
 
+		// TODO-05: Add two users - ADMIN_USER and SUPERUSER_USER with encoded passwords
+		// Add ADMIN_USER/ADMIN_PASSWORD with ADMIN_ROLE
+		// Add SUPERUSER_USER/SUPERUSER_PASSWORD with ADMIN_ROLE and SUPERUSER_ROLE
+
 		PasswordEncoder passwordEncoder
 				= PasswordEncoderFactories.createDelegatingPasswordEncoder();
 
-		// TODO-05: Add two users - ADMIN_USER and SUPERUSER_USER with encoded passwords
 		auth.inMemoryAuthentication()
-		// Add ADMIN_USER/ADMIN_PASSWORD with ADMIN_ROLE
-
-		.and()
-		// Add SUPERUSER_USER/SUPERUSER_PASSWORD with ADMIN_ROLE and SUPERUSER_ROLE
-
-		;
+				.withUser(ADMIN_USER).roles(ADMIN_ROLE).password(passwordEncoder.encode(ADMIN_PASSWORD)).and()
+				.withUser(SUPERUSER_USER).roles(ADMIN_ROLE, SUPERUSER_ROLE).password(passwordEncoder.encode(SUPERUSER_PASSWORD));
 	}
 
 	/**
@@ -45,15 +49,19 @@ public class AuthServerConsoleSecurityConfiguration extends WebSecurityConfigure
 	@Override
 	protected void configure(HttpSecurity http) throws Exception {
 
+
+		// Setup a login page, and allow open-access
+		// Define a custom Access Denied page
+		// Allow open-access to resources (images, CSS, JavaScript)
 		http.formLogin() //
-		         // Setup a login page, and allow open-access
 				.loginPage("/login").permitAll() // Enable a login page
-			.and() //
-			    // Define a custom Access Denied page
+				.and() //
 				.exceptionHandling().accessDeniedPage("/denied") // Access-denied page (unused)
-			.and().authorizeRequests() //
-			     // Allow open-access to resources (images, CSS, JavaScript)
+				.and().authorizeRequests() //
 				.mvcMatchers("/resources/**").permitAll() //
+				.mvcMatchers("/superuser*").hasRole(SUPERUSER_ROLE)
+				.mvcMatchers("/**").hasRole(ADMIN_ROLE) //
+
 				// TODO-06a: Allow "/superuser*" pages accessible only by SUPERUSER_ROLE
 
 				// TODO-06b: Allow all remaining pages accessible by ADMIN_ROLE
